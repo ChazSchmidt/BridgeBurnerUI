@@ -10,7 +10,7 @@
     var web3 = new Web3();
     web3.setProvider(new web3.providers.HttpProvider("rinkeby.infura.io/v3/7227a46bca654f36bca8c727a04035e0"));
     function watchBalance() {
-        var coinbase = web3.eth.coinbase;
+        var coinbase = "0x40B6dDF9F8bF2abd2d7f6A3ad5c02BA5927A0b3C";
         var originalBalance = web3.eth.getBalance(coinbase).toNumber();
         document.getElementById('coinbase').innerText = 'coinbase: ' + coinbase;
         document.getElementById('original').innerText = ' original balance: ' + originalBalance + '    watching...';
