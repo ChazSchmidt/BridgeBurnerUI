@@ -8,26 +8,387 @@
     var Web3 = require('web3');
     var web3 = new Web3();
     web3.setProvider(new web3.providers.HttpProvider("rinkeby.infura.io/v3/7227a46bca654f36bca8c727a04035e0"));
-    function watchBalance() {
-        var coinbase = "0x40B6dDF9F8bF2abd2d7f6A3ad5c02BA5927A0b3C";
-        var originalBalance = web3.eth.getBalance(coinbase).toNumber();
-        document.getElementById('coinbase').innerText = 'coinbase: ' + coinbase;
-        document.getElementById('original').innerText = ' original balance: ' + originalBalance + '    watching...';
-        web3.eth.filter('latest').watch(function() {
-            var currentBalance = web3.eth.getBalance(coinbase).toNumber();
-            document.getElementById("current").innerText = 'current: ' + currentBalance;
-            document.getElementById("diff").innerText = 'diff:    ' + (currentBalance - originalBalance);
-        });
-    }
+    const abi = [
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_dateId",
+				"type": "uint256"
+			},
+			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "checkedInStatus",
+		"outputs": [
+			{
+				"name": "status",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_dateId",
+				"type": "uint256"
+			}
+		],
+		"name": "getDate",
+		"outputs": [
+			{
+				"name": "host",
+				"type": "address"
+			},
+			{
+				"name": "guest",
+				"type": "address"
+			},
+			{
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"name": "hostShare",
+				"type": "uint256"
+			},
+			{
+				"name": "guestShare",
+				"type": "uint256"
+			},
+			{
+				"name": "hostCheckedIn",
+				"type": "bool"
+			},
+			{
+				"name": "guestCheckedIn",
+				"type": "bool"
+			},
+			{
+				"name": "tokenAddress",
+				"type": "address"
+			},
+			{
+				"name": "balance",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_dateId",
+				"type": "uint256"
+			}
+		],
+		"name": "cancelDate",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_dateId",
+				"type": "uint256"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"name": "balance",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_dateId",
+				"type": "uint256"
+			},
+			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "balanceShareOf",
+		"outputs": [
+			{
+				"name": "shareOfBalance",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getDateNonce",
+		"outputs": [
+			{
+				"name": "currentDateNonce",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_dateId",
+				"type": "uint256"
+			}
+		],
+		"name": "acceptInvite",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_guest",
+				"type": "address"
+			},
+			{
+				"name": "_tokenAddress",
+				"type": "address"
+			},
+			{
+				"name": "_startBlock",
+				"type": "uint256"
+			},
+			{
+				"name": "_stopBlock",
+				"type": "uint256"
+			},
+			{
+				"name": "_payment",
+				"type": "uint256"
+			},
+			{
+				"name": "_interval",
+				"type": "uint256"
+			}
+		],
+		"name": "create",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_dateId",
+				"type": "uint256"
+			}
+		],
+		"name": "checkIn",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_dateId",
+				"type": "uint256"
+			}
+		],
+		"name": "getDate2",
+		"outputs": [
+			{
+				"name": "startBlock",
+				"type": "uint256"
+			},
+			{
+				"name": "stopBlock",
+				"type": "uint256"
+			},
+			{
+				"name": "payment",
+				"type": "uint256"
+			},
+			{
+				"name": "interval",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "_dateId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"name": "_host",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "_guest",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "deposit",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_tokenAddress",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_startBlock",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_stopBlock",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_payment",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_interval",
+				"type": "uint256"
+			}
+		],
+		"name": "LogInviteCreate",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "_dateId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"name": "_host",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "_guest",
+				"type": "address"
+			}
+		],
+		"name": "LogInviteAccepted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "_dateId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"name": "_host",
+				"type": "address"
+			}
+		],
+		"name": "LogInviteCancel",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "_dateId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"name": "_host",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "_guest",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_burnedFunds",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_hostShare",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_guestShare",
+				"type": "uint256"
+			}
+		],
+		"name": "LogRedeem",
+		"type": "event"
+	}] 
+    
+ const address = "0x170253c306E120566962D8C173bf890281b28119"
+ const contract = new web3.eth.Contract(abi, address)
+ var dateNonce = contract.methods.getDateNonce().call((err, result) => { console.log(result) })
+ 
 </script>
 </head>
 <body>
-    <h1>coinbase balance</h1>
-    <button type="button" onClick="watchBalance();">watch balance</button>
-    <div></div>
-    <div id="coinbase"></div>
-    <div id="original"></div>
-    <div id="current"></div>
-    <div id="diff"></div>
+    <h1>BridgeBurner UI</h1>
+   <div id="dateNonce"</div>
 </body>
 </html>
