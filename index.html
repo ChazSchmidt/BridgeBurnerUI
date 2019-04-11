@@ -5,9 +5,14 @@
 <script src="https://rawgit.com/ethereum/web3.js/develop/dist/web3.js"
 <script type="text/javascript">
    
-    var Web3 = require('web3');
-    var web3 = new Web3();
-    web3.setProvider(new web3.providers.HttpProvider("rinkeby.infura.io/v3/7227a46bca654f36bca8c727a04035e0"));
+    window.addEventListener('load', () => {
+    if (typeof web3 !== 'undefined') {
+        web3 = new Web3(web3.currentProvider);
+    } else {
+        console.log('No web3? You should consider trying MetaMask!');
+        web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+    }
+});
     const abi = [
 	{
 		"constant": true,
