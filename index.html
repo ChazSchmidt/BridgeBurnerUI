@@ -389,7 +389,6 @@
  const address = "0x170253c306E120566962D8C173bf890281b28119"
  const contract = new web3.eth.Contract(abi, address)
  function LoadData() {
-  document.getElementById("load").onclick = Bar();
    var $dateNonce = contract.methods.getDateNonce().call((err, result) => { console.log(result) })
    document.getElementById("test").innerHTML = $dateNonce
 }
@@ -398,7 +397,7 @@
 </head>
 <body>
     <h1>BridgeBurner UI</h1>
-   <div id="test"</div>
+   <div id="test"></div>
    <button id="load" onclick="LoadData()">Load</button>
 </body>
 </html>
